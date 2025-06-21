@@ -1,85 +1,70 @@
-# Auto Image Generator – Puteri Gunung Ledang (with filename_prefix)
+# 🌄 Auto Image Generator – Puteri Gunung Ledang
 
-This Python script is part of a digital project inspired by the Malaysian legend of Puteri Gunung Ledang, a mystical Malay princess known for her wisdom, strength, and unattainability. The script automatically sends 7 prompts to ComfyUI API to generate anime-style images based on this legend.
+This Python script is part of a digital storytelling project based on the Malaysian legend of **Puteri Gunung Ledang**, reimagined through AI-generated anime-style visuals using **ComfyUI**.
 
 ---
 
 ## 🧝‍♀️ About the Project
 
-This project reimagines Puteri Gunung Ledang, the legendary princess who resides on Gunung Ledang, through the lens of modern AI-generated art. The 7 image prompts reflect key parts of the legend, including her mystical beauty and the seven impossible conditions she set for the Sultan of Melaka.
+This project presents a modern artistic retelling of *Puteri Gunung Ledang*, the mystical Malay princess of Mount Ophir.  
+We generated **4 high-quality anime-style images** that represent key scenes in the story, using a shared workflow template and **randomized seeds**.
 
-We generated the images using ComfyUI with a customized workflow and converted them into a short video.
-
-🎥 Video Showcase:  
-📎 *Watch the final video here* (replace with actual link)
+- 📖 Narration is stored in `story.txt`  
+- 🎨 Text prompts are stored in `prompts.txt`  
 
 ---
 
-## 👨‍👩‍👧‍👦 Team Info
+## 🎥 Final Showcase
 
-- Team Name: Hello Kitty  
-- Competition: Young Digital Innovators (Python Category)  
-- GitHub Repo: https://github.com/PenangScienceCluster/python2025
+📎 *Watch the final video here (coming soon)*  
+(Replace this line with your actual video link)
+
+---
+
+## 👥 Team Info
+
+- **Team Name**: Hello Kitty  
+- **Competition**: Young Digital Innovators (Python Category)  
+- **GitHub Repo**: [https://github.com/PenangScienceCluster/python2025](https://github.com/PenangScienceCluster/python2025)
 
 ---
 
 ## 🛠 Tools & Resources
 
-- 🔧 ComfyUI (used for image generation):  
-  https://github.com/comfyanonymous/ComfyUI
+### 🎨 Image Generation:
+- **ComfyUI**  
+  → https://github.com/comfyanonymous/ComfyUI
 
-- 🧠 Model used: Illustrious-XL v0.1 (GUIDED)  
+- **Model Used**: *Illustrious-XL v0.1 (GUIDED)*  
   Trained by Onoma AI  
-  Download from HuggingFace:  
-  https://huggingface.co/OnomaAIResearch/Illustrious-xl-early-release-v0/blob/main/Illustrious-XL-v0.1-GUIDED.safetensors
+  Download:  
+  [HuggingFace Link](https://huggingface.co/OnomaAIResearch/Illustrious-xl-early-release-v0/blob/main/Illustrious-XL-v0.1-GUIDED.safetensors)
 
-- ✂️ Video Editing Tool: 必剪 (BiJian)
+### ✂️ Video Editing:
+- 必剪（BiJian）
 
 ---
 
-## 🔧 Customizations in This Project
+## ⚙️ Project Highlights
 
-- Forked and ran ComfyUI locally
-- Integrated the Illustrious-XL-v0.1-GUIDED model manually
-- Designed custom workflows (`puteri_1.json` to `puteri_7.json`) tailored to different scenes
-- Wrote a Python script (`main.py`) that:
-  - Automatically loads 7 prompt workflows
-  - Sends them to ComfyUI API (localhost)
-  - Sets seed, saves images with filename_prefix
-- All prompts are structured to reflect the seven legendary conditions or scenes in the story
+- ✅ Built using **Python 3.12**
+- 📂 Uses **ComfyUI prompt-style workflow** (not full graph .json)
+- 🔄 Automatically injects:
+  - Positive prompt (from `prompts.txt`)
+  - Negative prompt (predefined list)
+  - Random seed per image
+  - Filename prefix (`puteri_1`, `puteri_2`, etc.)
+- 📤 Sends prompt JSON to local ComfyUI API (`http://127.0.0.1:8188`)
+- 💾 Saves results in ComfyUI’s `/output/` folder
 
 ---
 
 ## ✅ Requirements
 
-- ComfyUI installed and running on: http://127.0.0.1:8188  
-  → [Install instructions](https://github.com/comfyanonymous/ComfyUI)
-- Python 3.12
-- Dependencies:
-  ```bash
-  pip install requests
-  
----
+- Python 3.12+
+- ComfyUI installed and running locally on `http://127.0.0.1:8188`
+- Illustrious-XL model placed in `ComfyUI/models/checkpoints`
 
-## 🚀 How to Start
-1. Launch ComfyUI
- ```bash
-git clone https://github.com/weiyangfoh/ComfyUI
----
- ```bash
-cd ComfyUI
----
- ```bash
-python main.py
-- Make sure the Illustrious XL model is placed in your models/checkpoints folder.
----
-3. Run Our Script
- ```bash
-cd Group-Hello-Kitty
----
-- In the Group-Hello-Kitty folder:
- ```bash
-python main.py
----
-- It will automatically call ComfyUI to generate 7 images with the correct filename prefix.
-- Images will be saved to your ComfyUI /output/ folder.
+Install dependencies:
+```bash
+pip install requests

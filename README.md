@@ -16,8 +16,8 @@ We generated **4 high-quality anime-style images** that represent key scenes in 
 
 ## 🎥 Final Showcase
 
-📎 *Watch the final video here (coming soon)*  
-(Replace this line with your actual video link)
+📎 *Watch the final video here 
+https://youtu.be/LRnxm0dGxL8?si=xPEkrBBpzfSXWNgZ
 
 ---
 

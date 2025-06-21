@@ -1,82 +1,93 @@
-import requests
+import random
 import json
-import time
-import os
+import requests
 
-# List of workflow JSON files to be processed
-WORKFLOW_FILES = [
-    "puteri_1.json",
-    "puteri_2.json",
-    "puteri_3.json",
-    "puteri_4.json",
-    "puteri_5.json"
+# List of positive prompts (1 for each image)
+positive_prompts = [
+    "A stunningly beautiful Malay princess stands alone in a quiet forest during golden hour, her long dark hair flowing gently in the breeze. Her refined facial features are elegant and noble, with expressive eyes that glow in the soft backlight. She wears a full-length traditional royal Malay dress made of layered songket fabric with intricate golden embroidery and long sleeves. A translucent kain lepas flows from her shoulders, trailing softly in the wind. Her accessories include a fine golden pendant, subtle earrings, and a royal crest brooch. She stands with grace and quiet strength, her face serene and composed. The background is inspired by Makoto Shinkai’s cinematic lighting, with sunrays filtering through tall tropical trees. Highly detailed, soft lighting, clean anime-style linework.",
+    "Anime style, wide shot of the Melaka Sultanate Palace from a distance, majestic traditional Malay wooden architecture, large multi-tiered roof with curved eaves, golden carvings and red-brown wood tones, palace surrounded by tropical trees and clear blue sky, sunlight illuminating the palace roof, peaceful and regal atmosphere, no people in view, cinematic composition, detailed scenery, lush green landscape, grand historical building, sharp anime outlines, beautiful harmony of nature and architecture",
+    "Studio Ghibli style, very old Malay woman walking slowly through a quiet tropical rainforest, hunched back, deeply wrinkled face, small tired eyes, white hair tied in a bun, modest faded batik sarong and long-sleeved kebaya, holding a wooden cane, soft painterly shading, inspired by the old Sophie in Howl’s Moving Castle, calm and wise expression, cinematic forest light, lush green foliage, peaceful atmosphere",
+    "a golden bowl filled with thick dark red blood, resting on green forest grass, a few drops of blood have spilled beside the bowl, the liquid reflects sunlight naturally, surrounded by soft shadows from nearby leaves, no people, anime cinematic style, high realism, soft lighting, studio ghibli and violet evergarden inspired, ultra detailed, masterpiece"
 ]
 
-# Folder where generated images will be stored or checked
-SAVE_DIR = "output_images"
+# Corresponding negative prompts for each image
+negative_prompts = [
+    "childlike, baby face, cartoon, ghost, elf, modern fashion, short skirt, hoodie, sci-fi armor, glowing effect, cropped, multiple people, blurry face, glitch, deformed, chibi, text, watermark",
+    "blurry, deformed, modern buildings, sci-fi, futuristic, glowing structures, people, fantasy, floating palace, surreal, ruins, horror, extra objects, chaotic background, elves",
+    "young woman, teenager, sexy, revealing clothes, anime girl, big eyes, smooth skin, fashionable, cute, short skirt, tight dress, fantasy creature, glowing effects, vibrant colors, large bust, exaggerated curves",
+    "golden liquid, glowing blood, purple blood, magical aura, fantasy, lowres, blurry, sketch, surreal, floating, concept art, character, people, pink blood, golden blood, unrealistic"
+]
 
-# ComfyUI server address (adjust if different)
-COMFYUI_URL = "http://127.0.0.1:8188"
+# Short narration for each image
+narration = [
+    "In the golden forest, a royal figure stands in silence, her gaze distant as if hearing ancient whispers.",
+    "Far away, the grand palace of Melaka rises proudly under the morning sun, untouched by time.",
+    "Deep in the jungle, an old woman walks slowly, holding secrets older than the trees around her.",
+    "A golden bowl rests gently on the grass, its blood-red contents shimmering beneath the leaves."
+]
 
-# HTTP request headers
-HEADERS = {"Content-Type": "application/json"}
+# Template for a single ComfyUI prompt request
+workflow_template = {
+    "prompt": {
+        "1": {"inputs": {"ckpt_name": "Illustrious-XL-v0.1-GUIDED (1).safetensors"}, "class_type": "CheckpointLoaderSimple"},
+        "3": {"inputs": {"text": "", "clip": ["1", 1]}, "class_type": "CLIPTextEncode"},
+        "5": {"inputs": {"text": "", "clip": ["1", 1]}, "class_type": "CLIPTextEncode"},
+        "9": {"inputs": {"width": 768, "height": 1152, "batch_size": 1}, "class_type": "EmptyLatentImage"},
+        "2": {
+            "inputs": {
+                "seed": 0,
+                "steps": 35,
+                "cfg": 7,
+                "sampler_name": "dpmpp_2m",
+                "scheduler": "karras",
+                "denoise": 1.0,
+                "model": ["1", 0],
+                "positive": ["3", 0],
+                "negative": ["5", 0],
+                "latent_image": ["9", 0]
+            },
+            "class_type": "KSampler",
+            "widgets_values": [0, "randomize", 35, 7, "dpmpp_2m", "karras", 1.0]
+        },
+        "6": {"inputs": {"samples": ["2", 0], "vae": ["1", 2]}, "class_type": "VAEDecode"},
+        "10": {"inputs": {"images": ["6", 0], "filename_prefix": "puteri"}, "class_type": "SaveImage"}
+    }
+}
 
-# Load workflow JSON from file
-def load_workflow(file_path):
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+# ComfyUI API server URL
+url = "http://127.0.0.1:8188/prompt"
 
-# Send a workflow to ComfyUI for processing
-def send_workflow(workflow_json):
-    url = f"{COMFYUI_URL}/prompt"
-    response = requests.post(url, headers=HEADERS, json=workflow_json)
-    if response.status_code == 200:
-        print("✅ Workflow sent.")
-        return True
-    else:
-        print(f"❌ Failed to send workflow: {response.status_code}")
-        return False
+# Repeat generation loop
+keep_generating = True
+while keep_generating:
+    for i in range(4):
+        print(f"\n▶️ Generating image {i+1}/4")
+        print(f"📖 Story {i+1}: {narration[i]}")
+        
+        # Clone the workflow template (deep copy)
+        workflow = json.loads(json.dumps(workflow_template))
 
-# Wait for the output image to appear in the folder
-def wait_for_image(filename, timeout=60):
-    full_path = os.path.join(SAVE_DIR, filename + ".png")
-    waited = 0
+        # Insert positive and negative prompts
+        workflow["prompt"]["3"]["inputs"]["text"] = positive_prompts[i]
+        workflow["prompt"]["5"]["inputs"]["text"] = negative_prompts[i]
 
-    # Keep checking every 2 seconds until file appears or timeout
-    while not os.path.exists(full_path):
-        if waited >= timeout:
-            print(f"⚠️ Timeout: {filename}.png not found after {timeout}s")
-            return False
-        time.sleep(2)
-        waited += 2
-        print(f"⏳ Waiting for {filename}.png... ({waited}s)")
+        # Generate a random seed and insert into prompt
+        seed = random.randint(1, 4294967295)
+        workflow["prompt"]["2"]["inputs"]["seed"] = seed
+        workflow["prompt"]["2"]["widgets_values"][0] = seed
 
-    print(f"✅ Image {filename}.png detected.")
-    return True
+        # Set filename prefix
+        workflow["prompt"]["10"]["inputs"]["filename_prefix"] = f"puteri_{i+1}"
 
-# Main script logic
-def main():
-    os.makedirs(SAVE_DIR, exist_ok=True)  # Create folder if not exists
+        # Send the prompt to ComfyUI
+        response = requests.post(url, json=workflow)
+        if response.ok:
+            print(f"✅ Image {i+1} submitted successfully (seed: {seed})")
+        else:
+            print(f"❌ Failed to submit image {i+1}: {response.status_code}")
+            print(response.text)
 
-    # Loop through each workflow file
-    for workflow_file in WORKFLOW_FILES:
-        print(f"\n🚀 Starting workflow: {workflow_file}")
-        workflow = load_workflow(workflow_file)
-
-        # Try to extract the output filename from the SaveImage node
-        save_node = next(
-            (node for node in workflow["nodes"] if node["type"] == "SaveImage"), None)
-        filename = save_node["widgets_values"][0] if save_node else "unknown"
-
-        # Send the workflow to ComfyUI
-        sent = send_workflow(workflow)
-        if not sent:
-            continue
-
-        # Wait for the image to be generated using while loop
-        image_ready = wait_for_image(filename)
-        if not image_ready:
-            print("⚠️ Skipping to next workflow.")
-
-if name == "__main__":
-    main()
+    # Ask the user whether to generate more
+    user_input = input("\n🌀 Do you want to generate another set of 4 images? (yes/no): ").strip().lower()
+    if user_input != "yes":
+        keep_generating = False

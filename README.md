@@ -68,3 +68,22 @@ We generated **4 high-quality anime-style images** that represent key scenes in 
 Install dependencies:
 ```bash
 pip install requests
+
+---
+
+
+## ▶️ How to Use
+
+1. **Start ComfyUI**
+   - Make sure ComfyUI is running locally on `http://127.0.0.1:8188`.
+
+2. **Checkpoints & Settings**
+   - Confirm that the following model is installed and available:
+     ```
+     Illustrious-XL-v0.1-GUIDED (1).safetensors
+     ```
+   - Resolution used: `768x1152`
+
+3. **Run the script**
+   ```bash
+   python main.py

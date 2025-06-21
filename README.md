@@ -68,6 +68,7 @@ We generated **4 high-quality anime-style images** that represent key scenes in 
 Install dependencies:
 ```bash
 pip install requests
+```
 
 ---
 
